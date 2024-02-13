@@ -2,20 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
-class RecordSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {        
-        DB::table('records')->insert([
-            'user' => User::find(['email' => 'jasper.spoor@gmail.com']),
+        DB::table('users')->insert([
+            'name' => 'Jasper Spoor',
+            'email' => 'jasper.spoor@gmail.com',
+            'password' => Hash::make('password'),
         ]);
     }
 }

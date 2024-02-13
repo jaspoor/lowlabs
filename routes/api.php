@@ -14,9 +14,13 @@ use App\Http\Controllers\RecordController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::controller(RecordController::class)->group(function () {
-    Route::get('/records', 'list');
-    Route::post('/records', 'add');
+Route::middleware('auth:api')->get('/user', function(Request $request) {
+    return $request->user();
 });
 
+Route::controller(RecordController::class)->group(function () {
+    Route::get('/records', 'index');
+    Route::post('/records', 'store');
+    Route::get('/records/{record}', 'show');
+    Route::delete('/records/{record}', 'delete');
+});
