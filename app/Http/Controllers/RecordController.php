@@ -10,18 +10,18 @@ use Illuminate\Http\Request;
 
 class RecordController extends Controller
 {
-    public function index(User $user) {
-        $user = User::find(1);
+    public function index(Request $request) {
+        $user = $request->user();
         $records = Record::whereBelongsTo($user)->latest()->paginate();
 
         return new RecordCollection($records);
     }
 
     public function store(Request $request) {
-        $user = User::find(1);
+        $user = $request->user();
         
         $record = new Record;
-        $record->user = $user;
+        $record->user_id = $user->id;
         $record->type = $request->type;
         $record->data = $request->data;
         $record->save();
@@ -37,7 +37,6 @@ class RecordController extends Controller
     public function delete(Record $record)
     {
         $record->delete();
-        $record->save();
 
         return response()->json(['message' => 'Record removed.']);
     }

@@ -14,13 +14,15 @@ use App\Http\Controllers\RecordController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware('auth:api')->get('/user', function(Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function(Request $request) {
     return $request->user();
 });
 
-Route::controller(RecordController::class)->group(function () {
-    Route::get('/records', 'index');
-    Route::post('/records', 'store');
-    Route::get('/records/{record}', 'show');
-    Route::delete('/records/{record}', 'delete');
+Route::middleware(['auth:sanctum', 'ability:fetch-records'])
+    ->controller(RecordController::class)
+    ->group(function () {
+        Route::get('/records', 'index');
+        Route::post('/records', 'store');
+        Route::get('/records/{record}', 'show');
+        Route::delete('/records/{record}', 'delete');
 });
