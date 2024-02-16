@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Record>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RecordValue>
  */
-class RecordFactory extends Factory
+class RecordValueFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,9 +17,7 @@ class RecordFactory extends Factory
     public function definition(): array
     {
         return [
-            'run' => fake()->sha256(),
-            'type' => fake()->colorName(),
-            'reference' => fake()->sha256(),
+            'value' => 'test'
         ];
     }
 }

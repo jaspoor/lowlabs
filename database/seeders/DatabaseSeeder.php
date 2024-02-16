@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
+use App\Models\Client;
+use App\Models\Process;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -14,9 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()
-                ->count(1)
-                ->hasRecords(10)
-                ->create();
+        $client = Client::factory()
+            ->create(['name' => 'Lowlabs']);
+
+        $users = User::factory()
+            ->count(2)
+            ->for($client)
+            ->create();
+        
+        $processes = Process::factory()
+            ->count(2)
+            ->for($client)
+            ->hasProcessStatuses(4)
+            ->create();
+
+        $tags = Tag::factory()
+            ->count(4)
+            ->create();
     }
 }

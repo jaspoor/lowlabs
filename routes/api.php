@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProcessController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\TagController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,15 +18,33 @@ use App\Http\Controllers\RecordController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware('auth:sanctum')->get('/user', function(Request $request) {
-    return $request->user();
+Route::post('/login', [LoginController::class, 'login']);
+
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->get('/user', function(Request $request) {
+        return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'ability:fetch-records'])
-    ->controller(RecordController::class)
-    ->group(function () {
-        Route::get('/records', 'index');
-        Route::post('/records', 'store');
-        Route::get('/records/{record}', 'show');
-        Route::delete('/records/{record}', 'delete');
-});
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->resource('clients', ClientController::class)->except([
+        'create', 'edit'
+    ]);
+
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->get('clients/{client}/processes', [ClientController::class, 'processes'])
+    ->name('clients.processes');
+
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->resource('tags', TagController::class)->except([
+        'create', 'edit'
+    ]);
+
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->resource('processes', ProcessController::class)->except([
+        'create', 'edit'
+    ]);
+
+Route::middleware(['auth:sanctum', 'ability:api'])
+    ->resource('process/{process}/records', RecordController::class)->except([
+        'create', 'edit'
+    ]);

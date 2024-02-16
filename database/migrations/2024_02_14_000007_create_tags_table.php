@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('records', function($table) {
-            $table->string('type', 50);
-            $table->text('data')->nullable();
+        Schema::create('tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 50);
         });
     }
 
@@ -22,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('records', function($table) {
-            $table->dropColumn('type', 'data');
-        });
+        Schema::dropIfExists('tags');
     }
 };
