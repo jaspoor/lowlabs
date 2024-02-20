@@ -83,9 +83,8 @@ class Record extends Model
     public function updateTags(array $tags): void
     {
         $this->tagValues()->delete();
-
-        $this->tagValues()->saveMany(collect($tags)->map(function ($tagName, $tagValue) {
-            $tag = Tag::firstOrCreate(['name' => $tagName]);
+        $this->tagValues()->saveMany(collect($tags)->map(function ($tagValue, $tagName) {
+            $tag = Tag::firstOrCreate(['name' => $tagName]);            
             $tagValue = new TagValue(['value' => $tagValue]);
             $tagValue->tag_id = $tag->id;
             return $tagValue;
@@ -94,7 +93,7 @@ class Record extends Model
 
     public function getTagsAssocArray(): array
     {
-        return $this->tagValues->pluck('value', 'tag.name')->toArray();
+        return $this->tagValues->pluck('tag.name', 'value')->toArray();
     }
 
     public function getValuesArray(): array {
@@ -103,11 +102,11 @@ class Record extends Model
 
     public function scopeBelongsToUser($query, $user)
     {
-        return $query->where('user_id', $user->id);
+        return $query->where('records.user_id', $user->id);
     }
 
     public function scopeBelongsToProcess($query, $process)
     {
-        return $query->where('process_id', $process->id);
+        return $query->where('records.process_id', $process->id);
     }
 }

@@ -29,6 +29,57 @@ class RecordTest extends ApiTestCase
         
     }
 
+    public function test_api_record_search_by_reference(): void
+    {
+        $record1 = $this->createRecord();
+        $record2 = $this->createRecord();
+        $record3 = $this->createRecord();
+
+        $this->json('GET', 
+            sprintf('api/process/%d/records?reference=%s', $this->process->id, $record2->reference), [], 
+            $this->getAuthorizationHeader()
+        )
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.reference', $record2->reference);
+    }
+
+    public function test_api_record_search_by_status(): void
+    {
+        $record1 = $this->createRecord();
+        $record2 = $this->createRecord();
+        $record3 = $this->createRecord();
+
+        $record2->processStatus()->associate($this->process->processStatuses->last());
+        $record2->save();
+
+        $this->json('GET', 
+            sprintf('api/process/%d/records?status=%s', $this->process->id, $record2->processStatus->name), [], 
+            $this->getAuthorizationHeader()
+        )
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.reference', $record2->reference);
+    }
+
+    public function test_api_record_search_by_tag(): void
+    {
+        $record1 = $this->createRecord();
+        $record2 = $this->createRecord();
+        $record3 = $this->createRecord();
+
+        $record2->updateTags(['Location' => 'Rotterdam']);
+        $record2->save();
+
+        $this->json('GET', 
+            sprintf('api/process/%d/records?%s=%s', $this->process->id, 'Location', 'Rotterdam'), [], 
+            $this->getAuthorizationHeader()
+        )
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.reference', $record2->reference);
+    }
+
     public function test_api_record_store(): void
     {
         $value = '{ "test": "test" }';

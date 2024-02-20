@@ -5,26 +5,50 @@ namespace App\Http\Controllers;
 Use App\Models\Record;
 Use App\Http\Resources\RecordResource;
 use App\Models\Process;
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 class RecordController extends Controller
 {
     public function index(Request $request, Process $process)
     {
-        return RecordResource::collection(Record
-            ::belongsToUser($request->user())
-            ->belongsToProcess($process)
-            ->latest()
-            ->paginate());
-    }
+        $tagNames = Tag::pluck('name')->toArray();
+        $tagParams = array_fill_keys($tagNames, 'max:255');
 
-    public function search(Request $request, Process $process, $reference)
-    {
-        return RecordResource::collection(Record
-            ::belongsToUser($request->user())
-            ->belongsToProcess($process)
-            ::where('reference', 'like', '%'.$reference.'%')
-            ->get());
+        $validatedData = $request->validate([
+            'reference' => 'max:255',
+            'status' => 'max:255',
+        ] + $tagParams);
+
+        
+        $query = Record
+            ::query()
+            ->belongsToUser($request->user())
+            ->belongsToProcess($process);
+
+        // Find by status
+        if (isset($validatedData['reference'])) {
+            $query->where('reference', $validatedData['reference']);
+        }
+
+        // Find by status
+        if (isset($validatedData['status'])) {
+            $query->whereHas('processStatus', function($query) use ($validatedData) {
+                $query->where('name', $validatedData['status']);
+            });
+        }
+
+        // Find by tag(s)
+        foreach ($tagNames as $tagName) {
+            if (isset($validatedData[$tagName])) {
+                $query->whereHas('tagValues.tag', function ($query) use ($tagName, $validatedData) {
+                    $query->where('name', $tagName)->where('value', $validatedData[$tagName]);
+                });
+            }
+        }
+
+        return RecordResource::collection($query->latest()->paginate());
     }
 
     public function show(Record $record)

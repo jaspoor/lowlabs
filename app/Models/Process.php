@@ -42,7 +42,7 @@ class Process extends Model
 
     public function scopeBelongsToClient($query, $client)
     {
-        return $query->where('client_id', $client->id);
+        return $query->where('processes.client_id', $client->id);
     }
 
     public function updateStatuses(array $statuses): void 
