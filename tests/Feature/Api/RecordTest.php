@@ -118,7 +118,7 @@ class RecordTest extends ApiTestCase
                     ],
                     'status' => $status,
                 ]
-            ]);        
+            ]);
     }
 
     public function test_api_record_destroy(): void

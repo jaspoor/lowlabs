@@ -93,7 +93,7 @@ class Record extends Model
 
     public function getTagsAssocArray(): array
     {
-        return $this->tagValues->pluck('tag.name', 'value')->toArray();
+        return $this->tagValues->pluck('value', 'tag.name')->toArray();
     }
 
     public function getValuesArray(): array {
