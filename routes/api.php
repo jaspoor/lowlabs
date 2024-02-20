@@ -45,6 +45,6 @@ Route::middleware(['auth:sanctum', 'ability:api'])
     ]);
 
 Route::middleware(['auth:sanctum', 'ability:api'])
-    ->resource('process/{process}/records', RecordController::class)->except([
+    ->resource('processes/{process}/records', RecordController::class)->except([
         'create', 'edit'
     ]);

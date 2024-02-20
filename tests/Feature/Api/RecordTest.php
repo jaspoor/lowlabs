@@ -14,7 +14,7 @@ class RecordTest extends ApiTestCase
         $this->createRecord();
 
         $this->json('GET', 
-            sprintf('api/process/%d/records', $this->process->id), [], 
+            sprintf('api/processes/%d/records', $this->process->id), [], 
             $this->getAuthorizationHeader()
         )
             ->assertStatus(200)
@@ -36,7 +36,7 @@ class RecordTest extends ApiTestCase
         $record3 = $this->createRecord();
 
         $this->json('GET', 
-            sprintf('api/process/%d/records?reference=%s', $this->process->id, $record2->reference), [], 
+            sprintf('api/processes/%d/records?reference=%s', $this->process->id, $record2->reference), [], 
             $this->getAuthorizationHeader()
         )
             ->assertStatus(200)
@@ -54,7 +54,7 @@ class RecordTest extends ApiTestCase
         $record2->save();
 
         $this->json('GET', 
-            sprintf('api/process/%d/records?status=%s', $this->process->id, $record2->processStatus->name), [], 
+            sprintf('api/processes/%d/records?status=%s', $this->process->id, $record2->processStatus->name), [], 
             $this->getAuthorizationHeader()
         )
             ->assertStatus(200)
@@ -72,7 +72,7 @@ class RecordTest extends ApiTestCase
         $record2->save();
 
         $this->json('GET', 
-            sprintf('api/process/%d/records?%s=%s', $this->process->id, 'Location', 'Rotterdam'), [], 
+            sprintf('api/processes/%d/records?%s=%s', $this->process->id, 'Location', 'Rotterdam'), [], 
             $this->getAuthorizationHeader()
         )
             ->assertStatus(200)
@@ -99,7 +99,7 @@ class RecordTest extends ApiTestCase
         ];
 
         $this->json('POST', 
-            sprintf('api/process/%d/records', $this->process->id),
+            sprintf('api/processes/%d/records', $this->process->id),
             $payload, 
             $this->getAuthorizationHeader())
             ->assertStatus(201)
@@ -126,7 +126,7 @@ class RecordTest extends ApiTestCase
         $record = $this->createRecord();
 
         $this->json('DELETE', 
-            sprintf('api/process/%d/records/%d', $this->process->id, $record->id), 
+            sprintf('api/processes/%d/records/%d', $this->process->id, $record->id), 
             [], 
             $this->getAuthorizationHeader())
             ->assertStatus(200);
