@@ -7,7 +7,6 @@ Use App\Http\Resources\RecordResource;
 use App\Models\Process;
 use App\Models\Tag;
 use Illuminate\Http\Request;
-use Doctrine\DBAL\Query\QueryBuilder;
 
 class RecordController extends Controller
 {
@@ -51,7 +50,7 @@ class RecordController extends Controller
         return RecordResource::collection($query->latest()->paginate());
     }
 
-    public function show(Record $record)
+    public function show(Process $process, Record $record)
     {
         return new RecordResource($record);
     }
@@ -94,9 +93,9 @@ class RecordController extends Controller
         return new RecordResource($record);
     }
 
-    public function update(Request $request, Record $record) 
+    public function update(Request $request, Process $process, Record $record) 
     {        
-        $request->validate([            
+        $request->validate([
             'run' => 'optional',
             'type' => 'optional',
             'reference' => 'optional',

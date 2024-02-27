@@ -27,6 +27,7 @@ class RecordResource extends JsonResource
             'status' => $this->processStatus->name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'retain_days' => $this->retain_days,
         ];
     }
 }

@@ -20,6 +20,12 @@ class Record extends Model
         'run',
         'type', 
         'reference',       
+        'retain_days',
+    ];
+
+    // If you want to use dates casting for the property
+    protected $dates = [
+        'retain_days',
     ];
 
     /**

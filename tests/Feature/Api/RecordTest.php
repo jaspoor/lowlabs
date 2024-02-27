@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Record;
 use App\Models\RecordValue;
 use App\Models\TagValue;
+use Illuminate\Database\Eloquent\Collection;
 use Tests\Feature\ApiTestCase;
 
 class RecordTest extends ApiTestCase
@@ -21,7 +22,7 @@ class RecordTest extends ApiTestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonStructure([
                 'data' => ['*' => ['id',  'client_id',  'user_id',  'process_id',  'run',  'type',  
-                    'reference', 'values', 'tags', 'status', 'updated_at',  'created_at']
+                    'reference', 'values', 'tags', 'status', 'updated_at',  'created_at', 'retain_days']
                 ]])
             ->assertJsonPath('data.0.values', ['value1', 'value2'])
             ->assertJsonPath('data.0.tags', ['Location' => 'The Hague', 'Color' => 'Red'])
@@ -134,14 +135,46 @@ class RecordTest extends ApiTestCase
         $this->assertModelMissing($record);
     }
 
-    private function createRecord(): Record
+    public function test_api_record_getting_a_high_id_should_work(): void
     {
-        return Record
+        $records = $this->createRecord(100);
+
+        $this->json('GET', 
+            sprintf('api/processes/%d/records/%d', $this->process->id, $records->last()->id), 
+            [], 
+            $this->getAuthorizationHeader())
+            ->assertStatus(200);
+    }
+
+    public function test_api_record_should_be_removed_automatically_after_retain_days(): void
+    {
+        // Create an old record
+        $oldRecord = $this->createRecord();
+        $oldRecord->created_at = now()->subDays(100); // Create record 100 days ago
+        $oldRecord->retain_days = 90; // Retain for 90 days
+        $oldRecord->save();
+
+        // Ensure the record exists before the request
+        $this->assertDatabaseHas('records', ['id' => $oldRecord->id]);
+
+        // Perform a GET request to the record index        
+        $response = $this->json('GET', 
+            sprintf('api/processes/%d/records', $this->process->id), 
+            [], 
+            $this->getAuthorizationHeader())
+            ->assertStatus(200)
+            ->assertJsonMissing(['id' => $oldRecord->id]);
+    }
+
+    private function createRecord(int $count = 1): Record|Collection
+    {
+        $records = Record
             ::factory()
             ->for($this->client)
             ->for($this->user)
             ->for($this->process)
             ->for($this->process->processStatuses->first())
+            ->count($count)
             ->has(RecordValue::factory()
                 ->sequence(
                     ['value' => 'value1'],
@@ -155,5 +188,7 @@ class RecordTest extends ApiTestCase
                 )
                 ->count(2))
             ->create();
+
+        return (1 === $count) ? $records->first() : $records;
     }
 }
