@@ -15,11 +15,14 @@ class RecordController extends Controller
         $tagNames = Tag::pluck('name')->toArray();
         $tagParams = array_fill_keys($tagNames, 'max:255');
 
+        $sortableFields = ['run', 'type', 'reference', 'created_at'];
+
         $validatedData = $request->validate([
             'reference' => 'max:255',
             'status' => 'max:255',
+            'sort' => 'nullable|in:' . implode(',', $sortableFields),
+            'dir' => 'nullable|in:asc,desc',        
         ] + $tagParams);
-
         
         $query = Record
             ::query()
@@ -45,6 +48,14 @@ class RecordController extends Controller
                     $query->where('name', $tagName)->where('value', $validatedData[$tagName]);
                 });
             }
+        }
+
+        // Add order
+        if (isset($validatedData['sort'])) {
+            $sort = $validatedData['sort'];
+            $dir = $validatedData['dir'] ?? 'asc';
+            
+            $query->orderBy($sort, $dir);
         }
 
         return RecordResource::collection($query->latest()->paginate());

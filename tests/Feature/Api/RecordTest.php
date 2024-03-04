@@ -166,6 +166,34 @@ class RecordTest extends ApiTestCase
             ->assertJsonMissing(['id' => $oldRecord->id]);
     }
 
+    public function test_api_record_should_sort_by_created_at_desc(): void
+    {
+        // Create an old record
+        $record1 = $this->createRecord();
+        $record2 = $this->createRecord();
+        $record3 = $this->createRecord();
+
+        $record2->created_at = date('Y-m-d H:i:s', strtotime($record2->created_at . ' -1 day'));
+        $record2->save();
+
+        $record3->created_at = date('Y-m-d H:i:s', strtotime($record3->created_at . ' +1 day'));
+        $record3->save();
+
+        // Perform a GET request to the record index        
+        $response = $this->json('GET', 
+            sprintf('api/processes/%d/records?sort=created_at&dir=desc', $this->process->id), 
+            [], 
+            $this->getAuthorizationHeader())
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    ['id' => $record3->id],
+                    ['id' => $record1->id],
+                    ['id' => $record2->id],
+                ]
+            ]);
+    }
+
     private function createRecord(int $count = 1): Record|Collection
     {
         $records = Record
