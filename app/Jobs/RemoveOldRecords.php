@@ -19,10 +19,13 @@ class RemoveOldRecords implements ShouldQueue
      */
     public function handle(): void
     {
-        // Remove records older than their creation date + retain days
-        //$records = Record::whereRaw('created_at <= DATE_SUB(NOW(), INTERVAL retain_days DAY)')->get();
-        $records = Record::whereRaw(DB::raw("date('now') > date(created_at, '+' || retain_days || ' days')"))->get();
-                
+        // Remove records older than their creation date + retain days                
+        $sql = ('sqlite' === config('database.default')) 
+            ? "date('now') > date(created_at, '+' || retain_days || ' days')"
+            : "DATE_ADD(created_at, INTERVAL retain_days DAY) < NOW()";
+            
+        $records = Record::whereRaw(DB::raw($sql))->get();
+
         foreach ($records as $record) {
             $record->delete();
         }
