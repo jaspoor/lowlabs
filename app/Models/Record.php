@@ -21,6 +21,7 @@ class Record extends Model
         'type', 
         'reference',       
         'retain_days',
+        'created_at'
     ];
 
     // If you want to use dates casting for the property
@@ -82,8 +83,10 @@ class Record extends Model
     }
 
     public function addValue(string $value): void
-    {
-        $this->recordValues()->create(['value' => $value]);
+    {        
+        $recordValue = new RecordValue;
+        $recordValue->value = $value;
+        $this->recordValues()->save($recordValue);
     }
     
     public function updateTags(array $tags): void

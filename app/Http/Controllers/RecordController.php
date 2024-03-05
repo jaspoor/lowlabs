@@ -6,6 +6,7 @@ Use App\Models\Record;
 Use App\Http\Resources\RecordResource;
 use App\Models\Process;
 use App\Models\Tag;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
@@ -21,7 +22,10 @@ class RecordController extends Controller
             'reference' => 'max:255',
             'status' => 'max:255',
             'sort' => 'nullable|in:' . implode(',', $sortableFields),
-            'dir' => 'nullable|in:asc,desc',        
+            'dir' => 'nullable|in:asc,desc', 
+            'created_before' => 'nullable|date',
+            'created_after' => 'nullable|date',
+            'created_between' => 'nullable|date_range',       
         ] + $tagParams);
         
         $query = Record
@@ -48,6 +52,24 @@ class RecordController extends Controller
                     $query->where('name', $tagName)->where('value', $validatedData[$tagName]);
                 });
             }
+        }
+
+        // Filter by created date
+        if (isset($validatedData['created_before'])) {
+            $createdBefore = Carbon::parse($validatedData['created_before']);
+            $query->where('created_at', '<=', $createdBefore);
+        }
+
+        if (isset($validatedData['created_after'])) {
+            $createdAfter = Carbon::parse($validatedData['created_after']);
+            $query->where('created_at', '>=', $createdAfter);
+        }
+
+        if (isset($validatedData['created_between'])) {
+            $dates = explode(',', $validatedData['created_between']);
+            $startDate = Carbon::parse($dates[0]);
+            $endDate = Carbon::parse($dates[1]);
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         // Add order
@@ -104,17 +126,48 @@ class RecordController extends Controller
         return new RecordResource($record);
     }
 
-    public function update(Request $request, Process $process, Record $record) 
-    {        
+    public function update(Request $request, Process $process, Record $record) {
+        
         $request->validate([
-            'run' => 'optional',
-            'type' => 'optional',
-            'reference' => 'optional',
-            'status' => 'optional',
-            'value' => 'optional'
+            'run' => 'sometimes|required|max:255',
+            'type' => 'sometimes|required|max:255',
+            'reference' => 'sometimes|max:255',
+            'status' => 'sometimes|required|exists:process_statuses,name,process_id,' . $process->id,
+            'value' => 'sometimes|json',
+            'tags' => 'nullable|array',
+            'tags.*' => 'required|string|max:255',
         ]);
-
-        $record->update($request->all());
+    
+        // Check if the record belongs to the given process
+        if ($record->process_id !== $process->id) {
+            return response()->json(['message' => 'Record does not belong to the specified process'], 403);
+        }
+                
+        // Change plain status name into ProcessStatus if provided
+        if ($request->has('status')) {
+            $statusName = $request->status;
+            $processStatus = $process->processStatuses->firstWhere('name', $statusName);
+            if (!$processStatus) {
+                return response()->json(['message' => 'Invalid status provided'], 422);
+            }
+            $record->process_status_id = $processStatus->id;
+        }
+    
+        // Update other fields if provided
+        $record->fill($request->only(['run', 'type', 'reference']));
+        $record->save();
+    
+        // Update value if provided
+        if ($request->has('value')) {
+            $record->addValue($request->value);
+        }
+    
+        // Update tags if provided
+        if ($request->has('tags')) {
+            $record->updateTags($request->tags);
+        }
+        
+        // $record->save();
 
         return new RecordResource($record);
     }

@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Record;
 use App\Models\RecordValue;
 use App\Models\TagValue;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Feature\ApiTestCase;
 
@@ -120,6 +121,30 @@ class RecordTest extends ApiTestCase
                     'status' => $status,
                 ]
             ]);
+    }
+
+    public function test_api_record_update(): void
+    {
+        $record1 = $this->createRecord();
+
+        $value = '{ "test": "test" }';
+
+        $payload = [
+            'value' => $value
+        ];
+
+        $this->json('PATCH', 
+            sprintf('api/processes/%d/records/%d', $this->process->id, $record1->id),
+            $payload, 
+            $this->getAuthorizationHeader())
+            ->assertStatus(200);
+
+        $this->json('GET', 
+            sprintf('api/processes/%d/records/%d', $this->process->id, $record1->id), [], 
+            $this->getAuthorizationHeader()
+        )
+            ->assertStatus(200)
+            ->assertJsonPath('data.values.2', $value);
     }
 
     public function test_api_record_destroy(): void
