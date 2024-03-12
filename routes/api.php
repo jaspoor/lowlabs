@@ -18,7 +18,7 @@ use App\Http\Controllers\TagController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware(['auth:sanctum', 'ability:api', 'throttle:1000,1'])->group(function () {
+Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
 
     Route::post('/login', [LoginController::class, 'login']);
 
