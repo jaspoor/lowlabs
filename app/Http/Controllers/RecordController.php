@@ -35,21 +35,27 @@ class RecordController extends Controller
 
         // Find by status
         if (isset($validatedData['reference'])) {
-            $query->where('reference', $validatedData['reference']);
+            $query->whereIn('reference', explode(',', $validatedData['reference']));
         }
 
         // Find by status
         if (isset($validatedData['status'])) {
-            $query->whereHas('processStatus', function($query) use ($validatedData) {
-                $query->where('name', $validatedData['status']);
-            });
+            $statusArray = explode(',', $validatedData['status']);            
+            $query->whereHas('processStatus', function($query) use ($statusArray) {
+                $query->where(function ($query) use ($statusArray) {
+                    foreach ($statusArray as $status) {
+                        $query->orWhere('name', $status);
+                    }
+                });
+            });    
         }
 
         // Find by tag(s)
         foreach ($tagNames as $tagName) {
             if (isset($validatedData[$tagName])) {
-                $query->whereHas('tagValues.tag', function ($query) use ($tagName, $validatedData) {
-                    $query->where('name', $tagName)->where('value', $validatedData[$tagName]);
+                $tagValues = explode(',', $validatedData[$tagName]);
+                $query->whereHas('tagValues.tag', function ($query) use ($tagName, $tagValues) {
+                    $query->where('name', $tagName)->whereIn('value', $tagValues);
                 });
             }
         }
@@ -79,7 +85,7 @@ class RecordController extends Controller
             
             $query->orderBy($sort, $dir);
         }
-
+        
         return RecordResource::collection($query->latest()->paginate());
     }
 

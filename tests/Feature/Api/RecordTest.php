@@ -64,6 +64,36 @@ class RecordTest extends ApiTestCase
             ->assertJsonPath('data.0.reference', $record2->reference);
     }
 
+    public function test_api_record_search_by_multiple_statuses(): void
+    {
+        $record1 = $this->createRecord();
+        $record2 = $this->createRecord();
+        $record3 = $this->createRecord();
+
+        $record2->processStatus()->associate($this->process->processStatuses->skip(1)->take(1)->first());
+        $record2->save();
+        
+        $record3->processStatus()->associate($this->process->processStatuses->last());
+        $record3->save();
+        
+        $statuses = [
+            $record2->processStatus->name,
+            $record3->processStatus->name
+        ];
+
+        $this->json('GET', 
+            sprintf('api/processes/%d/records?status=%s', 
+                $this->process->id, 
+                implode(',', $statuses)
+            ),
+            [], $this->getAuthorizationHeader()
+        )
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $record2->id)
+            ->assertJsonPath('data.1.id', $record3->id);
+    }
+
     public function test_api_record_search_by_tag(): void
     {
         $record1 = $this->createRecord();
