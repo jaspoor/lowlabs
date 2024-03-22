@@ -44,12 +44,23 @@ class Process extends Model
     {
         return $query->where('processes.client_id', $client->id);
     }
-
+    
     public function updateStatuses(array $statuses): void 
     {
-        $this->processStatuses()->delete();
-        $this->processStatuses()->saveMany(collect($statuses)->map(function ($statusName) {
-            return new ProcessStatus(['name' => $statusName]);
-        }));
+        // Get existing status names
+        $existingStatuses = $this->processStatuses()->pluck('name')->toArray();
+    
+        // Determine statuses to delete
+        $statusesToDelete = array_diff($existingStatuses, $statuses);
+    
+        // Delete statuses that are not in the new list
+        $this->processStatuses()->whereIn('name', $statusesToDelete)->delete();
+    
+        // Create new statuses that don't exist
+        $statusesToCreate = array_diff($statuses, $existingStatuses);
+        foreach ($statusesToCreate as $statusName) {
+            $this->processStatuses()->create(['name' => $statusName]);
+        }
     }
+    
 }

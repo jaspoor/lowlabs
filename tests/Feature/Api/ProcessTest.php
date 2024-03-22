@@ -27,10 +27,13 @@ class ProcessTest extends ApiTestCase
             ->assertStatus(200)
             ->assertJsonCount(2, 'data');
 
+        // Change name and add status
         $this->json('PATCH', sprintf('api/processes/%d', $this->process->id),
-            ['name' => 'Updated'], $this->getAuthorizationHeader())
+            ['name' => 'Updated', 'statuses' => [$this->process->processStatuses->first()->name, 'test2']],
+            $this->getAuthorizationHeader())
             ->assertStatus(200);
 
+        // Ensure records are still attached
         $this->json('GET', sprintf('api/processes/%d/records', $this->process->id), [], 
             $this->getAuthorizationHeader()
         )
