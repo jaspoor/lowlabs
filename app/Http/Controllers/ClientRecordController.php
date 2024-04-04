@@ -2,59 +2,45 @@
 
 namespace App\Http\Controllers;
 
-Use App\Models\Record;
-Use App\Http\Resources\RecordResource;
-use App\Models\Process;
+use App\Http\Resources\ClientRecordResource;
+use App\Models\Client;
+use App\Models\ClientRecord;
 use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class RecordController extends Controller
+class ClientRecordController extends Controller
 {
-    public function index(Request $request, Process $process)
+    public function index(Request $request, Client $client)
     {
         $tagNames = Tag::pluck('name')->toArray();
         $tagParams = array_fill_keys($tagNames, 'max:255');
 
-        $sortableFields = ['run', 'type', 'reference', 'created_at'];
+        $sortableFields = ['type', 'reference', 'created_at'];
 
         $validatedData = $request->validate([
             'reference' => 'max:255',
-            'status' => 'max:255',
-            'sort' => 'nullable|in:' . implode(',', $sortableFields),
             'dir' => 'nullable|in:asc,desc', 
+            'sort' => 'nullable|in:' . implode(',', $sortableFields),
             'created_before' => 'nullable|date',
             'created_after' => 'nullable|date',
             'created_between' => 'nullable|date_range',       
         ] + $tagParams);
         
-        $query = Record
+        $query = ClientRecord
             ::query()
-            ->belongsToUser($request->user())
-            ->belongsToProcess($process);
+            ->belongsToUser($request->user());
 
-        // Find by status
+        // Find by reference
         if (isset($validatedData['reference'])) {
             $query->whereIn('reference', explode(',', $validatedData['reference']));
-        }
-
-        // Find by status
-        if (isset($validatedData['status'])) {
-            $statusArray = explode(',', $validatedData['status']);            
-            $query->whereHas('processStatus', function($query) use ($statusArray) {
-                $query->where(function ($query) use ($statusArray) {
-                    foreach ($statusArray as $status) {
-                        $query->orWhere('name', $status);
-                    }
-                });
-            });    
         }
 
         // Find by tag(s)
         foreach ($tagNames as $tagName) {
             if (isset($validatedData[$tagName])) {
                 $tagValues = explode(',', $validatedData[$tagName]);
-                $query->whereHas('tagValues.tag', function ($query) use ($tagName, $tagValues) {
+                $query->whereHas('clientRecordTagValues.tag', function ($query) use ($tagName, $tagValues) {
                     $query->where('name', $tagName)->whereIn('value', $tagValues);
                 });
             }
@@ -86,41 +72,32 @@ class RecordController extends Controller
             $query->orderBy($sort, $dir);
         }
         
-        return RecordResource::collection($query->latest()->paginate());
+        return ClientRecordResource::collection($query->latest()->paginate());
     }
 
-    public function show(Process $process, Record $record)
+    public function show(Client $client, ClientRecord $record)
     {
-        return new RecordResource($record);
+        return new ClientRecordResource($record);
     }
 
-    public function store(Request $request, Process $process) {
+    public function store(Request $request, Client $client) {
         
         $request->validate([
-            'run' => 'required|max:255',
             'type' => 'required|max:255',
             'reference' => 'max:255',
-            'status' => 'required|exists:process_statuses,name,process_id,' . $process->id,
             'value' => 'json',
             'tags' => 'nullable|array',
             'tags.*' => 'required|string|max:255',
         ]);
                 
-        // Change plain status name into ProcessStatus
-        $statusName = $request->status;
-        $processStatus = $process->processStatuses->firstWhere('name', $statusName);
-
         $user = $request->user();
 
         // Add record
-        $record = new Record;
+        $record = new ClientRecord;
         $record->user_id = $user->id;
         $record->client_id = $user->client->id;
-        $record->process_id = $process->id;
-        $record->run = $request->run;
         $record->type = $request->type;
         $record->reference = $request->reference;
-        $record->process_status_id = $processStatus->id;
         $record->save();
 
         if ($request->value) {
@@ -129,38 +106,26 @@ class RecordController extends Controller
 
         $record->updateTags($request->tags);
         
-        return new RecordResource($record);
+        return new ClientRecordResource($record);
     }
 
-    public function update(Request $request, Process $process, Record $record) {
+    public function update(Request $request, Client $client, ClientRecord $record) {
         
         $request->validate([
-            'run' => 'sometimes|required|max:255',
             'type' => 'sometimes|required|max:255',
             'reference' => 'sometimes|max:255',
-            'status' => 'sometimes|required|exists:process_statuses,name,process_id,' . $process->id,
             'value' => 'sometimes|json',
             'tags' => 'nullable|array',
             'tags.*' => 'required|string|max:255',
         ]);
     
-        // Check if the record belongs to the given process
-        if ($record->process_id !== $process->id) {
-            return response()->json(['message' => 'Record does not belong to the specified process'], 403);
+        // Check if the record belongs to the given client
+        if ($record->client_id !== $client->id) {
+            return response()->json(['message' => 'Record does not belong to the specified client'], 403);
         }
-                
-        // Change plain status name into ProcessStatus if provided
-        if ($request->has('status')) {
-            $statusName = $request->status;
-            $processStatus = $process->processStatuses->firstWhere('name', $statusName);
-            if (!$processStatus) {
-                return response()->json(['message' => 'Invalid status provided'], 422);
-            }
-            $record->process_status_id = $processStatus->id;
-        }
-    
+                    
         // Update other fields if provided
-        $record->fill($request->only(['run', 'type', 'reference']));
+        $record->fill($request->only(['type', 'reference']));
         $record->save();
     
         // Update value if provided
@@ -175,10 +140,10 @@ class RecordController extends Controller
         
         // $record->save();
 
-        return new RecordResource($record);
+        return new ClientRecordResource($record);
     }
 
-    public function destroy(Process $process, Record $record)
+    public function destroy(Client $client, ClientRecord $record)
     {
         $record->delete();
 

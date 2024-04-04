@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TagValue>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ClientRecordTagValue>
  */
-class TagValueFactory extends Factory
+class ClientRecordTagValueFactory extends Factory
 {
     /**
      * Define the model's default state.

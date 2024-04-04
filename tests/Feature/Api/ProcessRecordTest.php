@@ -2,18 +2,17 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Record;
-use App\Models\RecordValue;
-use App\Models\TagValue;
-use Carbon\Carbon;
+use App\Models\ProcessRecord;
+use App\Models\ProcessRecordTagValue;
+use App\Models\ProcessRecordValue;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Feature\ApiTestCase;
 
-class RecordTest extends ApiTestCase
+class ProcessRecordTest extends ApiTestCase
 {
     public function test_api_record_index(): void
     {
-        $this->createRecord();
+        $this->createProcessRecord();
 
         $this->json('GET', 
             sprintf('api/processes/%d/records', $this->process->id), [], 
@@ -33,9 +32,9 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_search_by_reference(): void
     {
-        $record1 = $this->createRecord();
-        $record2 = $this->createRecord();
-        $record3 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
+        $record2 = $this->createProcessRecord();
+        $record3 = $this->createProcessRecord();
 
         $this->json('GET', 
             sprintf('api/processes/%d/records?reference=%s', $this->process->id, $record2->reference), [], 
@@ -48,9 +47,9 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_search_by_status(): void
     {
-        $record1 = $this->createRecord();
-        $record2 = $this->createRecord();
-        $record3 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
+        $record2 = $this->createProcessRecord();
+        $record3 = $this->createProcessRecord();
 
         $record2->processStatus()->associate($this->process->processStatuses->last());
         $record2->save();
@@ -66,9 +65,9 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_search_by_multiple_statuses(): void
     {
-        $record1 = $this->createRecord();
-        $record2 = $this->createRecord();
-        $record3 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
+        $record2 = $this->createProcessRecord();
+        $record3 = $this->createProcessRecord();
 
         $record2->processStatus()->associate($this->process->processStatuses->skip(1)->take(1)->first());
         $record2->save();
@@ -96,9 +95,9 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_search_by_tag(): void
     {
-        $record1 = $this->createRecord();
-        $record2 = $this->createRecord();
-        $record3 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
+        $record2 = $this->createProcessRecord();
+        $record3 = $this->createProcessRecord();
 
         $record2->updateTags(['Location' => 'Rotterdam']);
         $record2->save();
@@ -155,7 +154,7 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_update(): void
     {
-        $record1 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
 
         $value = '{ "test": "test" }';
 
@@ -179,7 +178,7 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_destroy(): void
     {
-        $record = $this->createRecord();
+        $record = $this->createProcessRecord();
 
         $this->json('DELETE', 
             sprintf('api/processes/%d/records/%d', $this->process->id, $record->id), 
@@ -192,7 +191,7 @@ class RecordTest extends ApiTestCase
 
     public function test_api_record_getting_a_high_id_should_work(): void
     {
-        $records = $this->createRecord(100);
+        $records = $this->createProcessRecord(100);
 
         $this->json('GET', 
             sprintf('api/processes/%d/records/%d', $this->process->id, $records->last()->id), 
@@ -204,13 +203,13 @@ class RecordTest extends ApiTestCase
     public function test_api_record_should_be_removed_automatically_after_retain_days(): void
     {
         // Create an old record
-        $oldRecord = $this->createRecord();
+        $oldRecord = $this->createProcessRecord();
         $oldRecord->created_at = now()->subDays(100); // Create record 100 days ago
         $oldRecord->retain_days = 90; // Retain for 90 days
         $oldRecord->save();
 
         // Ensure the record exists before the request
-        $this->assertDatabaseHas('records', ['id' => $oldRecord->id]);
+        $this->assertDatabaseHas('process_records', ['id' => $oldRecord->id]);
 
         // Perform a GET request to the record index        
         $response = $this->json('GET', 
@@ -224,9 +223,9 @@ class RecordTest extends ApiTestCase
     public function test_api_record_should_sort_by_created_at_desc(): void
     {
         // Create an old record
-        $record1 = $this->createRecord();
-        $record2 = $this->createRecord();
-        $record3 = $this->createRecord();
+        $record1 = $this->createProcessRecord();
+        $record2 = $this->createProcessRecord();
+        $record3 = $this->createProcessRecord();
 
         $record2->created_at = date('Y-m-d H:i:s', strtotime($record2->created_at . ' -1 day'));
         $record2->save();
@@ -249,22 +248,22 @@ class RecordTest extends ApiTestCase
             ]);
     }
 
-    private function createRecord(int $count = 1): Record|Collection
+    private function createProcessRecord(int $count = 1): ProcessRecord|Collection
     {
-        $records = Record
+        $records = ProcessRecord
             ::factory()
             ->for($this->client)
             ->for($this->user)
             ->for($this->process)
             ->for($this->process->processStatuses->first())
             ->count($count)
-            ->has(RecordValue::factory()
+            ->has(ProcessRecordValue::factory()
                 ->sequence(
                     ['value' => 'value1'],
                     ['value' => 'value2']
                 )
                 ->count(2))
-            ->has(TagValue::factory()
+            ->has(ProcessRecordTagValue::factory()
                 ->sequence(
                     ['tag_id' => $this->tags->first()->id, 'value' => 'The Hague'],
                     ['tag_id' => $this->tags->last()->id, 'value' => 'Red']

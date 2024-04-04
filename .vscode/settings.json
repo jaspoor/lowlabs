@@ -10,6 +10,24 @@
             "database": "crawler_services",
             "username": "finebot",
             "password": "fAjtchUwtrtp8A8zM2AD"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Enabled",
+                "ssl": {
+                    "ca": "/Users/jasper/Downloads/ca-certificate.crt"
+                }
+            },
+            "previewLimit": 50,
+            "server": "db-cluster-do-user-15743849-0.c.db.ondigitalocean.com",
+            "driver": "MySQL",
+            "name": "Lowlabs Prod",
+            "group": "lowlabs",
+            "database": "defaultdb",
+            "username": "doadmin",
+            "password": "AVNS_tO5IWbNThEFyqvIZLth",
+            "connectString": "mysql://doadmin:AVNS_tO5IWbNThEFyqvIZLth@db-cluster-do-user-15743849-0.c.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED"
         }
     ]
 }

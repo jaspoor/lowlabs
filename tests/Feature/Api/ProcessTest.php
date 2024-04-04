@@ -2,9 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Record;
-use App\Models\RecordValue;
-use App\Models\TagValue;
+use App\Models\ProcessRecord;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Feature\ApiTestCase;
@@ -13,7 +11,7 @@ class ProcessTest extends ApiTestCase
 {
     public function test_api_process_update(): void
     {
-        $records = Record
+        $records = ProcessRecord
             ::factory()
             ->for($this->client)
             ->for($this->user)

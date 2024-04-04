@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class TagValue extends Model
+class ClientRecordValue extends Model
 {
     use HasFactory;
 
@@ -23,12 +23,8 @@ class TagValue extends Model
      * @var string
      */
     protected $value;
-
-    public function tag(): BelongsTo {
-        return $this->belongsTo(Tag::class);
-    }
-
-    public function record(): BelongsTo {
-        return $this->belongsTo(Record::class);
+    
+    public function clientRecord(): BelongsTo {
+        return $this->belongsTo(ClientRecord::class);
     }
 }

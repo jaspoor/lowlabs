@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientRecordController;
 use App\Http\Controllers\ProcessController;
+use App\Http\Controllers\ProcessRecordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RecordController;
@@ -30,6 +32,10 @@ Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
             'create', 'edit'
         ]);
 
+    Route::resource('clients/{client}/records', ClientRecordController::class)->except([
+        'create', 'edit'
+    ]);
+    
     Route::get('clients/{client}/processes', [ClientController::class, 'processes'])
         ->name('clients.processes');
 
@@ -41,7 +47,7 @@ Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
             'create', 'edit'
         ]);
 
-    Route::resource('processes/{process}/records', RecordController::class)->except([
+    Route::resource('processes/{process}/records', ProcessRecordController::class)->except([
             'create', 'edit'
         ]);
 });

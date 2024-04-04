@@ -4,19 +4,19 @@ namespace Tests\Feature\Unit;
 
 use App\Models\Client;
 use App\Models\Process;
+use App\Models\ProcessRecord;
 use App\Models\ProcessStatus;
-use App\Models\Record;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
-class RecordTagValuesTest extends TestCase
+class ProcessRecordTagValuesTest extends TestCase
 {
-    public function test_record_should_add_tag_value(): void
+    public function test_process_record_should_add_tag_value(): void
     {        
         $record = $this->createRecord();
 
-        $this->assertNull($record->tagValues()->first());
+        $this->assertNull($record->processRecordTagValues()->first());
 
         $tags = ['Location' => 'London'];
 
@@ -26,11 +26,11 @@ class RecordTagValuesTest extends TestCase
         $this->assertEquals($tags, $record->getTagsAssocArray());
     }
 
-    public function test_record_should_update_existing_tag_value(): void
+    public function test_process_record_should_update_existing_tag_value(): void
     {        
         $record = $this->createRecord();
 
-        $this->assertNull($record->tagValues()->first());
+        $this->assertNull($record->processRecordTagValues()->first());
 
         $tags = ['Location' => 'London'];
 
@@ -47,11 +47,11 @@ class RecordTagValuesTest extends TestCase
         $this->assertEquals($tags, $record->getTagsAssocArray());
     }
 
-    public function test_record_should_remove_missing_tag_value(): void
+    public function test_process_record_should_remove_missing_tag_value(): void
     {        
         $record = $this->createRecord();
 
-        $this->assertNull($record->tagValues()->first());
+        $this->assertNull($record->processRecordTagValues()->first());
 
         $tags = ['Location' => 'London'];
 
@@ -68,14 +68,14 @@ class RecordTagValuesTest extends TestCase
         $this->assertEquals($tags, $record->getTagsAssocArray());
     }
 
-    private function createRecord(): Record
+    private function createRecord(): ProcessRecord
     {
         $client = Client::factory()->create();
         $user = User::factory()->for($client)->create();
         $process = Process::factory()->for($client)->create();
         $processStatus = ProcessStatus::factory()->for($process)->create();
     
-        $record = Record::factory()
+        $record = ProcessRecord::factory()
             ->for($client)
             ->for($user)
             ->for($process)

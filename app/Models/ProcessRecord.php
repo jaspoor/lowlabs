@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Record extends Model
+class ProcessRecord extends Model
 {
     use HasFactory;
     
+    /**
+     * @var string
+     */
+    protected $table = 'process_records';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -64,37 +69,37 @@ class Record extends Model
         return $this->belongsTo(ProcessStatus::class);
     }
 
-    public function tagValues(): HasMany
+    public function processRecordTagValues(): HasMany
     {
-        return $this->hasMany(TagValue::class);
+        return $this->hasMany(ProcessRecordTagValue::class);
     }
 
-    public function recordValues(): HasMany
+    public function processRecordValues(): HasMany
     {
-        return $this->hasMany(RecordValue::class);
+        return $this->hasMany(ProcessRecordValue::class);
     }
 
     public function delete(): bool|null
     {
-        $this->recordValues()->delete();
-        $this->tagValues()->delete();
+        $this->processRecordValues()->delete();
+        $this->processRecordTagValues()->delete();
 
         return parent::delete();
     }
 
     public function addValue(string $value): void
     {        
-        $recordValue = new RecordValue;
+        $recordValue = new ProcessRecordValue;
         $recordValue->value = $value;
-        $this->recordValues()->save($recordValue);
+        $this->processRecordValues()->save($recordValue);
     }
     
     public function updateTags(array $tags): void
     {
-        $this->tagValues()->delete();
-        $this->tagValues()->saveMany(collect($tags)->map(function ($tagValue, $tagName) {
+        $this->processRecordTagValues()->delete();
+        $this->processRecordTagValues()->saveMany(collect($tags)->map(function ($tagValue, $tagName) {
             $tag = Tag::firstOrCreate(['name' => $tagName]);            
-            $tagValue = new TagValue(['value' => $tagValue]);
+            $tagValue = new ProcessRecordTagValue(['value' => $tagValue]);
             $tagValue->tag_id = $tag->id;
             return $tagValue;
         }));
@@ -102,20 +107,20 @@ class Record extends Model
 
     public function getTagsAssocArray(): array
     {
-        return $this->tagValues->pluck('value', 'tag.name')->toArray();
+        return $this->processRecordTagValues->pluck('value', 'tag.name')->toArray();
     }
 
     public function getValuesArray(): array {
-        return $this->recordValues->pluck('value')->toArray();
+        return $this->processRecordValues->pluck('value')->toArray();
     }
 
     public function scopeBelongsToUser($query, $user)
     {
-        return $query->where('records.user_id', $user->id);
+        return $query->where($this->table . '.user_id', $user->id);
     }
 
     public function scopeBelongsToProcess($query, $process)
     {
-        return $query->where('records.process_id', $process->id);
+        return $query->where($this->table . '.process_id', $process->id);
     }
 }

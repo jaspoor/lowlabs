@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RecordResource extends JsonResource
+class ClientRecordResource extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
@@ -18,16 +18,12 @@ class RecordResource extends JsonResource
             'id' => $this->id,
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
-            'process_id' => $this->process->id,
-            'run' => $this->run,
             'type' => $this->type,
             'reference' => $this->reference,
             'values' => $this->getValuesArray(),
             'tags' => $this->getTagsAssocArray(),
-            'status' => $this->processStatus->name,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'retain_days' => $this->retain_days,
+            'updated_at' => $this->updated_at
         ];
     }
 }

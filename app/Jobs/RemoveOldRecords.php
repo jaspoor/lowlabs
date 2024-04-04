@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Record;
+use App\Models\ProcessRecord;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,7 +24,7 @@ class RemoveOldRecords implements ShouldQueue
             ? "date('now') > date(created_at, '+' || retain_days || ' days')"
             : "DATE_ADD(created_at, INTERVAL retain_days DAY) < NOW()";
             
-        $records = Record::whereRaw(DB::raw($sql))->get();
+        $records = ProcessRecord::whereRaw(DB::raw($sql))->get();
 
         foreach ($records as $record) {
             $record->delete();
