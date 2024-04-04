@@ -6,6 +6,7 @@
 /database/database.sqlite
 .env
 .env.backup
+.env.test
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
