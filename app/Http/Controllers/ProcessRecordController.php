@@ -21,6 +21,7 @@ class ProcessRecordController extends Controller
         $validatedData = $request->validate([
             'reference' => 'max:255',
             'dir' => 'nullable|in:asc,desc',
+            'sort' => 'nullable|in:' . implode(',', $sortableFields),
             'status' => 'max:255', 
             'created_before' => 'nullable|date',
             'created_after' => 'nullable|date',
@@ -30,9 +31,7 @@ class ProcessRecordController extends Controller
         $query = ProcessRecord
             ::query()
             ->belongsToUser($request->user())
-            ->belongsToProcess($process);
-
-        $validatedData['sort'] = 'nullable|in:' . implode(',', $sortableFields);          
+            ->belongsToProcess($process); 
 
         // Find by status
         if (isset($validatedData['reference'])) {
