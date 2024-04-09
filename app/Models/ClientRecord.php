@@ -54,7 +54,7 @@ class ClientRecord extends Model
 
     public function clientRecordValues(): HasMany
     {
-        return $this->hasMany(ClientRecordTagValue::class);
+        return $this->hasMany(ClientRecordValue::class);
     }
 
     public function delete(): bool|null
