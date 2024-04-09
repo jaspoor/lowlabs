@@ -72,7 +72,7 @@ class ClientRecord extends Model
         $this->clientRecordValues()->save($recordValue);
     }
     
-    public function updateTags(array $tags): void
+    public function updateTags(?array $tags): void
     {
         $this->clientRecordTagValues()->delete();
         $this->clientRecordTagValues()->saveMany(collect($tags)->map(function ($tagValue, $tagName) {

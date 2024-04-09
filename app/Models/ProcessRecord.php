@@ -94,7 +94,7 @@ class ProcessRecord extends Model
         $this->processRecordValues()->save($recordValue);
     }
     
-    public function updateTags(array $tags): void
+    public function updateTags(?array $tags): void
     {
         $this->processRecordTagValues()->delete();
         $this->processRecordTagValues()->saveMany(collect($tags)->map(function ($tagValue, $tagName) {
