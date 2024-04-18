@@ -17,6 +17,7 @@ class Client extends Model
      */
     protected $fillable = [
         'name',
+        'domain'
     ];
 
     /**
@@ -26,9 +27,5 @@ class Client extends Model
 
     public function users(): HasMany {
         return $this->hasMany(User::class);
-    }
-
-    public function records(): HasMany {
-        return $this->hasMany(Record::class);
     }
 }

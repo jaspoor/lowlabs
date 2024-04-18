@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Controller as BaseController;
 Use App\Http\Resources\ProcessRecordResource;
 use App\Models\Process;
 use App\Models\ProcessRecord;
@@ -9,7 +10,7 @@ use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class ProcessRecordController extends Controller
+class ProcessRecordController extends BaseController
 {
     public function index(Request $request, Process $process)
     {

@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Controller as BaseController;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProcessResource;
 use App\Models\Client;
 use App\Models\Process;
 use Illuminate\Http\Request;
 
-class ClientController extends Controller
+class ClientController extends BaseController
 {
     public function index() 
     {

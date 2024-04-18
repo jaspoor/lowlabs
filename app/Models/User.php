@@ -22,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'client_id',
         'password',
     ];
 
@@ -47,10 +48,5 @@ class User extends Authenticatable
 
     public function client(): BelongsTo {
         return $this->belongsTo(Client::class);
-    }
-
-    public function records(): HasMany
-    {
-        return $this->hasMany(Record::class);
     }
 }

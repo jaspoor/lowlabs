@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Controller as BaseController;
 use App\Http\Resources\ProcessResource;
 use App\Models\Process;
-use App\Models\ProcessStatus;
 use Illuminate\Http\Request;
 
-class ProcessController extends Controller
+class ProcessController extends BaseController
 {
     public function index(Request $request)
     {

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Controller as BaseController;
 use App\Http\Resources\ClientRecordResource;
 use App\Models\Client;
 use App\Models\ClientRecord;
@@ -9,7 +10,7 @@ use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class ClientRecordController extends Controller
+class ClientRecordController extends BaseController
 {
     public function index(Request $request, Client $client)
     {

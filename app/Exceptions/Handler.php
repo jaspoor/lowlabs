@@ -50,11 +50,6 @@ class Handler extends ExceptionHandler
             ], 404);
         }
 
-        if ($exception instanceof AuthenticationException &&
-            $request->wantsJson()) {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
-        }
-
         // Customize the rendering for production environment
     
         $message = $exception->getMessage();
