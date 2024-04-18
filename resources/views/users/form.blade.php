@@ -8,7 +8,7 @@
                 <div class="card-header">{{ isset($user) ? 'Edit User' : 'Create User' }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ isset($user) ? route('users.update', $client->id, $user->id) : route('users.store', $client->id) }}">
+                    <form method="POST" action="{{ isset($user) ? route('users.update', ['client' => $client->id, 'user' => $user->id]) : route('users.store', $client->id) }}">
                         @csrf
                         @if(isset($user))
                             @method('PUT')
