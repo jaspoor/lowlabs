@@ -46,7 +46,7 @@ class UserController extends Controller
     }
 
     // Show edit user form
-    public function edit(User $user, Client $client)
+    public function edit(Client $client, User $user)
     {
         return view('users.form', compact('user', 'client'));
     }
