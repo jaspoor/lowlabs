@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\TagController;
 |
 */
 Route::prefix('auth')->group(function () {
-    Route::get('request', [AuthController::class, 'request']);
+    Route::post('request', [AuthController::class, 'request']);
     Route::post('activate', [AuthController::class, 'activate']);
 });
 
