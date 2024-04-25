@@ -6,9 +6,9 @@ use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientRecordController;
 use App\Http\Controllers\Api\ProcessController;
 use App\Http\Controllers\Api\ProcessRecordController;
+use App\Http\Controllers\Api\RecipeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\RecordController;
 use App\Http\Controllers\Api\TagController;
 
 /*
@@ -21,13 +21,18 @@ use App\Http\Controllers\Api\TagController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::prefix('auth')->group(function () {
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function () {
+    Route::post('login', [AuthController::class, 'login']);
     Route::post('request', [AuthController::class, 'request']);
     Route::post('activate', [AuthController::class, 'activate']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
 });
 
-
-Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
+Route::middleware(['jwt.auth'])->name('api.')->group(function () {
 
     Route::post('/login', [LoginController::class, 'login']);
     
@@ -43,6 +48,9 @@ Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
         'create', 'edit'
     ]);
     
+    Route::get('clients/{client}/recipes', [ClientController::class, 'recipes'])
+        ->name('clients.recipes');
+
     Route::get('clients/{client}/processes', [ClientController::class, 'processes'])
         ->name('clients.processes');
 
@@ -53,6 +61,10 @@ Route::middleware(['auth:sanctum', 'ability:api'])->group(function () {
     Route::resource('processes', ProcessController::class)->except([
             'create', 'edit'
         ]);
+
+    Route::resource('recipes', RecipeController::class)->except([
+        'create', 'edit'
+    ]);
 
     Route::resource('processes/{process}/records', ProcessRecordController::class)->except([
             'create', 'edit'

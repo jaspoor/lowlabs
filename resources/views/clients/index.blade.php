@@ -22,7 +22,8 @@
                 <td>{{ $client->name }}</td>
                 <td>{{ $client->domain }}</td>
                 <td>
-                    <a href="{{ url('/clients/'.$client->id.'/users') }}" >Show users</a>
+                    <a href="{{ url('/clients/'.$client->id.'/users') }}" class="btn btn-link">Users</a>
+                    <a href="{{ url('/clients/'.$client->id.'/recipes') }}" class="btn btn-link">Recipes</a>
                 </td>
                 <td>
                     <a href="{{ url('/clients/edit/'.$client->id) }}" class="btn btn-info">Edit</a>

@@ -62,7 +62,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJson(['success' => true])
+                 ->assertJson(['message' => 'Success'])
                  ->assertHeader('Authorization');
 
         $this->assertDatabaseHas('users', [

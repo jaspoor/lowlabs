@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Controller as BaseController;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProcessResource;
+use App\Http\Resources\RecipeResource;
 use App\Models\Client;
 use App\Models\Process;
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 
 class ClientController extends BaseController
@@ -24,6 +26,14 @@ class ClientController extends BaseController
     public function processes(Client $client)
     {
         return ProcessResource::collection(Process::
+            belongsToClient($client)
+            ->paginate()
+        );
+    }
+
+    public function recipes(Client $client)
+    {
+        return RecipeResource::collection(Recipe::
             belongsToClient($client)
             ->paginate()
         );

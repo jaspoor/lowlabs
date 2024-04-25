@@ -60,6 +60,6 @@ class ProcessController extends BaseController
     {
         $process->delete();
 
-        return response()->json(['message' => 'Success.']);
+        return $this->jsonSuccess();
     }
 }

@@ -2,14 +2,16 @@
 
 namespace App\Exceptions;
 
-use Exception;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class Handler extends ExceptionHandler
 {
@@ -36,6 +38,20 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof UnauthorizedHttpException) {
+            $exception = new ApplicationException('invalid_token', 401, $exception);
+        }
+        
+        if ($exception instanceof ApplicationException &&
+        $request->wantsJson()) {
+
+            $errors = config('errors');            
+            return response()->json([
+                'code' => $errors[$exception->errorKey]['code'],
+                'message' => $errors[$exception->errorKey]['message']
+            ], $exception->httpCode);
+        }
+
         if ($this->shouldntReport($exception)) {
             return parent::render($request, $exception);
         }

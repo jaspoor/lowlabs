@@ -28,4 +28,8 @@ class Client extends Model
     public function users(): HasMany {
         return $this->hasMany(User::class);
     }
+
+    public function recipes(): HasMany {
+        return $this->hasMany(Recipe::class);
+    }
 }

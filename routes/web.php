@@ -16,6 +16,7 @@ use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\UserController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\RecipeController;
 
 Route::redirect('/', '/home');
 
@@ -43,4 +44,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/clients/{client}/users/edit/{user}', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/clients/{client}/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/clients/{client}/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Recipes
+    Route::get('/clients/{client}/recipes', [RecipeController::class, 'index'])->name('recipes.index');
+    Route::get('/clients/{client}/recipes/create', [RecipeController::class, 'create'])->name('recipes.create');
+    Route::post('/clients/{client}/recipes', [RecipeController::class, 'store'])->name('recipes.store');
+    Route::get('/clients/{client}/recipes/edit/{recipe}', [RecipeController::class, 'edit'])->name('recipes.edit');
+    Route::put('/clients/{client}/recipes/{recipe}', [RecipeController::class, 'update'])->name('recipes.update');
+    Route::delete('/clients/{client}/recipes/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
 });

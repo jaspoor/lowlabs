@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApplicationException;
 use App\Http\Controllers\Api\Controller as BaseController;
 use App\Mail\ActivationCodeMailable;
 use App\Models\Activation;
@@ -14,6 +15,22 @@ use Illuminate\Support\Str;
 
 class AuthController extends BaseController
 {
+    public function login()
+    {
+        $credentials = request(['email', 'password']);
+
+        if (!$token = auth('api')->attempt($credentials)) {
+            throw new ApplicationException('invalid_credentials');
+        }
+
+        return $this->respondWithToken($token);
+    }
+
+    public function refresh()
+    {
+        return $this->respondWithToken(auth('api')->refresh());
+    }
+
     public function request(Request $request)
     {
         $request->validate([
@@ -37,7 +54,7 @@ class AuthController extends BaseController
             Mail::to($email)->send(new ActivationCodeMailable($email, $code));
         }
 
-        return response()->json("success");
+        return $this->jsonSuccess();
     }
 
     public function activate(Request $request)
@@ -56,7 +73,7 @@ class AuthController extends BaseController
                                 ->first();
 
         if (!$activation) {
-            return response()->json(['message' => 'Invalid or expired code'], 401);
+            throw new ApplicationException('invalid_code', 401);
         }
 
         $user = User::firstOrCreate([
@@ -64,13 +81,23 @@ class AuthController extends BaseController
         ], [
             'name' => '',
             'client_id' => $activation->client->id,
-            'password' => Hash::make(Str::random(10)) // Generating a random password
+            'password' => Hash::make(Str::random(10))
         ]);
 
-        $token = $user->createToken('authToken', ['plugin'])->plainTextToken;
-
         $activation->delete();
+
+        $token = auth('api')->login($user);
         
-        return response()->json(['success' => true], 200)->header('Authorization', $token);
+        return $this->respondWithToken($token);
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'refresh_expires_in' => config('jwt.refresh_ttl') * 60
+        ]);
     }
 }
