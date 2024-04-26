@@ -32,7 +32,12 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
 });
 
-Route::middleware(['jwt.auth'])->name('api.')->group(function () {
+Route::middleware('jwt.auth')->name('api.')->group(function () {
+    Route::get('clients/{client}/recipes', [ClientController::class, 'recipes'])
+    ->name('clients.recipes');
+});
+
+Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
     Route::post('/login', [LoginController::class, 'login']);
     
@@ -47,9 +52,6 @@ Route::middleware(['jwt.auth'])->name('api.')->group(function () {
     Route::resource('clients/{client}/records', ClientRecordController::class)->except([
         'create', 'edit'
     ]);
-    
-    Route::get('clients/{client}/recipes', [ClientController::class, 'recipes'])
-        ->name('clients.recipes');
 
     Route::get('clients/{client}/processes', [ClientController::class, 'processes'])
         ->name('clients.processes');
