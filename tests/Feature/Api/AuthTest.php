@@ -28,7 +28,7 @@ class AuthTest extends TestCase
             'domain' => $domain
         ]);     
 
-        $response = $this->json('GET', '/api/auth/request?email=' . $email);
+        $response = $this->json('POST', '/api/auth/request', ['email' => $email]);
 
         $response->assertStatus(200);
 
@@ -62,8 +62,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'Success'])
-                 ->assertHeader('Authorization');
+                 ->assertJson(['token_type' => 'bearer']);
 
         $this->assertDatabaseHas('users', [
             'email' => 'user@test.com'
