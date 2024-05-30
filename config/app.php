@@ -5,6 +5,8 @@ use Illuminate\Support\ServiceProvider;
 
 return [
 
+    'perplexity_token' => env('PERPLEXITY_TOKEN', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

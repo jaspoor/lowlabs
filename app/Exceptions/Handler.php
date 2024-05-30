@@ -45,10 +45,12 @@ class Handler extends ExceptionHandler
         if ($exception instanceof ApplicationException &&
         $request->wantsJson()) {
 
-            $errors = config('errors');            
+            $errors = config('errors');
+                        
             return response()->json([
                 'code' => $errors[$exception->errorKey]['code'],
-                'message' => $errors[$exception->errorKey]['message']
+                'message' => $errors[$exception->errorKey]['message'],
+                'previous' => $exception->getPrevious()->getMessage() ?? ''
             ], $exception->httpCode);
         }
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ClientRecordController;
+use App\Http\Controllers\Api\GptController;
 use App\Http\Controllers\Api\ProcessController;
 use App\Http\Controllers\Api\ProcessRecordController;
 use App\Http\Controllers\Api\RecipeController;
@@ -32,15 +33,18 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
 });
 
-Route::middleware('jwt.auth')->name('api.')->group(function () {
-    Route::get('clients/{client}/recipes', [ClientController::class, 'recipes'])
-    ->name('clients.recipes');
+// TODO: add route group to middleware('jwt.auth')
+Route::name('api.')->group(function () {
+    Route::get('clients/{client}/recipes', [ClientController::class, 'recipes'])->name('clients.recipes');
+
+    Route::post('/gpt', [GptController::class, 'complete']);
 });
 
 Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
     Route::post('/login', [LoginController::class, 'login']);
-    
+
+        
     Route::get('/user', function(Request $request) {
             return $request->user();
     });

@@ -13,4 +13,8 @@ return [
         'code' => 1003,
         'message' => 'Invalid token'
     ],
+    'invalid_perplexity_request' => [
+        'code' => 1004,
+        'message' => 'Invalid Perplexity request'
+    ],
 ];
